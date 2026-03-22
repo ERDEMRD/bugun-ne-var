@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#e94560">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Bugün Ne Var?</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ANA EKRAN -->
+  <div id="app">
+    <!-- Üst Bar -->
+    <header id="header">
+      <h1>📋 Bugün Ne Var?</h1>
+      <div id="today-date"></div>
+    </header>
+
+    <!-- Özet Kartı -->
+    <div id="summary-card">
+      <div id="summary-count">0</div>
+      <div id="summary-text">görevin var bugün</div>
+      <div id="next-task"></div>
+    </div>
+
+    <!-- Görev Listesi -->
+    <div id="task-list">
+      <!-- Görevler buraya gelecek -->
+    </div>
+
+    <!-- Boş Durum -->
+    <div id="empty-state" style="display:none;">
+      <div class="empty-icon">🎉</div>
+      <div class="empty-text">Bugün işin yok, rahat ol!</div>
+    </div>
+
+    <!-- Alt Butonlar -->
+    <div id="bottom-bar">
+      <button id="btn-yesterday" onclick="changeDay(-1)">◀ Dün</button>
+      <button id="btn-add" onclick="showAddForm()">＋ Yeni İş Ekle</button>
+      <button id="btn-tomorrow" onclick="changeDay(1)">Yarın ▶</button>
+    </div>
+
+    <!-- Tarih Navigasyonu -->
+    <div id="date-nav">
+      <button onclick="goToday()">Bugüne Dön</button>
+    </div>
+  </div>
+
+  <!-- YENİ İŞ EKLEME FORMU -->
+  <div id="add-form" class="modal" style="display:none;">
+    <div class="modal-content">
+      <h2>Yeni İş Ekle</h2>
+
+      <label>İş Adı *</label>
+      <input type="text" id="input-title" placeholder="Örn: Mehmet'i ara" autocomplete="off">
+
+      <label>Tarih *</label>
+      <input type="date" id="input-date">
+
+      <label>Saat</label>
+      <input type="time" id="input-time" value="09:00">
+
+      <label>Not</label>
+      <textarea id="input-note" placeholder="Örn: Elden teslim" rows="2"></textarea>
+
+      <label>Kişi (isteğe bağlı)</label>
+      <input type="text" id="input-person" placeholder="Örn: Ahmet">
+
+      <label>Tutar (isteğe bağlı)</label>
+      <input type="text" id="input-amount" placeholder="Örn: 3000 TL">
+
+      <label>Tekrar</label>
+      <select id="input-repeat">
+        <option value="none">Tekrar yok</option>
+        <option value="daily">Her gün</option>
+        <option value="weekly">Her hafta</option>
+        <option value="monthly">Her ay</option>
+      </select>
+
+      <label>Hatırlatma</label>
+      <select id="input-reminder">
+        <option value="attime">Saatinde</option>
+        <option value="1hour">1 saat önce</option>
+        <option value="both">Hem 1 saat önce hem saatinde</option>
+        <option value="none">Hatırlatma yok</option>
+      </select>
+
+      <div class="form-buttons">
+        <button class="btn-save" onclick="saveTask()">✅ Kaydet</button>
+        <button class="btn-cancel" onclick="hideAddForm()">İptal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DÜZENLEME FORMU -->
+  <div id="edit-form" class="modal" style="display:none;">
+    <div class="modal-content">
+      <h2>İşi Düzenle</h2>
+      <input type="hidden" id="edit-id">
+
+      <label>İş Adı *</label>
+      <input type="text" id="edit-title" autocomplete="off">
+
+      <label>Tarih *</label>
+      <input type="date" id="edit-date">
+
+      <label>Saat</label>
+      <input type="time" id="edit-time">
+
+      <label>Not</label>
+      <textarea id="edit-note" rows="2"></textarea>
+
+      <label>Kişi</label>
+      <input type="text" id="edit-person">
+
+      <label>Tutar</label>
+      <input type="text" id="edit-amount">
+
+      <label>Tekrar</label>
+      <select id="edit-repeat">
+        <option value="none">Tekrar yok</option>
+        <option value="daily">Her gün</option>
+        <option value="weekly">Her hafta</option>
+        <option value="monthly">Her ay</option>
+      </select>
+
+      <label>Hatırlatma</label>
+      <select id="edit-reminder">
+        <option value="attime">Saatinde</option>
+        <option value="1hour">1 saat önce</option>
+        <option value="both">Hem 1 saat önce hem saatinde</option>
+        <option value="none">Hatırlatma yok</option>
+      </select>
+
+      <div class="form-buttons">
+        <button class="btn-save" onclick="updateTask()">✅ Güncelle</button>
+        <button class="btn-delete" onclick="deleteTask()">🗑 Sil</button>
+        <button class="btn-cancel" onclick="hideEditForm()">İptal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- WhatsApp Özet Butonu -->
+  <div id="whatsapp-bar">
+    <button onclick="sendWhatsAppSummary()">📱 WhatsApp'a Gönder</button>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

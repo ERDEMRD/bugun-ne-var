@@ -1,0 +1,414 @@
+/* GENEL RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: #1a1a2e;
+  color: #eee;
+  min-height: 100vh;
+  padding-bottom: 160px;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+/* ÜST BAR */
+#header {
+  background: linear-gradient(135deg, #16213e, #0f3460);
+  padding: 20px;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+#header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #fff;
+}
+
+#today-date {
+  font-size: 18px;
+  color: #e94560;
+  margin-top: 6px;
+  font-weight: 600;
+}
+
+/* ÖZET KARTI */
+#summary-card {
+  background: linear-gradient(135deg, #e94560, #c23152);
+  margin: 16px;
+  padding: 24px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 8px 30px rgba(233, 69, 96, 0.3);
+}
+
+#summary-count {
+  font-size: 64px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+#summary-text {
+  font-size: 22px;
+  font-weight: 600;
+  margin-top: 4px;
+  opacity: 0.95;
+}
+
+#next-task {
+  margin-top: 12px;
+  font-size: 17px;
+  background: rgba(255,255,255,0.2);
+  padding: 10px 16px;
+  border-radius: 12px;
+  display: none;
+}
+
+/* GÖREV LİSTESİ */
+#task-list {
+  padding: 0 16px;
+}
+
+.task-card {
+  background: #16213e;
+  border-radius: 16px;
+  padding: 18px;
+  margin-bottom: 12px;
+  border-left: 5px solid #e94560;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+}
+
+.task-card.completed {
+  border-left-color: #4ecca3;
+  opacity: 0.6;
+}
+
+.task-card.completed .task-title {
+  text-decoration: line-through;
+}
+
+.task-time {
+  font-size: 15px;
+  color: #e94560;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.task-card.completed .task-time {
+  color: #4ecca3;
+}
+
+.task-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+
+.task-meta {
+  font-size: 14px;
+  color: #888;
+  margin-bottom: 10px;
+}
+
+.task-meta span {
+  margin-right: 12px;
+}
+
+.task-note {
+  font-size: 14px;
+  color: #aaa;
+  margin-bottom: 10px;
+  font-style: italic;
+}
+
+.task-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.task-actions button {
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.task-actions button:active {
+  transform: scale(0.95);
+}
+
+.btn-complete {
+  background: #4ecca3;
+  color: #1a1a2e;
+}
+
+.btn-complete.undo {
+  background: #888;
+  color: #fff;
+}
+
+.btn-postpone {
+  background: #f39c12;
+  color: #1a1a2e;
+}
+
+.btn-remind {
+  background: #3498db;
+  color: #fff;
+}
+
+.btn-edit-task {
+  background: #6c5ce7;
+  color: #fff;
+}
+
+/* BOŞ DURUM */
+#empty-state {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.empty-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+}
+
+.empty-text {
+  font-size: 22px;
+  color: #888;
+  font-weight: 600;
+}
+
+/* ALT BAR */
+#bottom-bar {
+  position: fixed;
+  bottom: 50px;
+  left: 0;
+  right: 0;
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  background: linear-gradient(to top, #1a1a2e 60%, transparent);
+  z-index: 20;
+}
+
+#bottom-bar button {
+  flex: 1;
+  border: none;
+  padding: 14px;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+#bottom-bar button:active {
+  transform: scale(0.95);
+}
+
+#btn-add {
+  background: #e94560;
+  color: #fff;
+  flex: 2;
+  font-size: 18px;
+}
+
+#btn-yesterday, #btn-tomorrow {
+  background: #16213e;
+  color: #aaa;
+  border: 2px solid #333;
+}
+
+/* TARİH NAV */
+#date-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 8px 16px 12px;
+  background: #1a1a2e;
+  text-align: center;
+  z-index: 20;
+}
+
+#date-nav button {
+  background: none;
+  border: 1px solid #444;
+  color: #888;
+  padding: 8px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* WHATSAPP BAR */
+#whatsapp-bar {
+  padding: 0 16px;
+  margin-bottom: 12px;
+}
+
+#whatsapp-bar button {
+  width: 100%;
+  background: #25d366;
+  color: #fff;
+  border: none;
+  padding: 14px;
+  border-radius: 14px;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+#whatsapp-bar button:active {
+  transform: scale(0.95);
+}
+
+/* MODAL */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.modal-content {
+  background: #16213e;
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 24px 24px 0 0;
+  padding: 24px;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.modal-content h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #fff;
+  text-align: center;
+}
+
+.modal-content label {
+  display: block;
+  font-size: 15px;
+  color: #aaa;
+  margin-bottom: 6px;
+  margin-top: 14px;
+  font-weight: 600;
+}
+
+.modal-content input,
+.modal-content textarea,
+.modal-content select {
+  width: 100%;
+  padding: 14px;
+  border: 2px solid #333;
+  border-radius: 12px;
+  background: #0f3460;
+  color: #fff;
+  font-size: 18px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.modal-content input:focus,
+.modal-content textarea:focus,
+.modal-content select:focus {
+  border-color: #e94560;
+}
+
+.modal-content select {
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.form-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.form-buttons button {
+  flex: 1;
+  padding: 16px;
+  border: none;
+  border-radius: 14px;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-save {
+  background: #4ecca3;
+  color: #1a1a2e;
+}
+
+.btn-delete {
+  background: #e74c3c;
+  color: #fff;
+}
+
+.btn-cancel {
+  background: #333;
+  color: #aaa;
+}
+
+/* TOAST BİLDİRİM */
+.toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #4ecca3;
+  color: #1a1a2e;
+  padding: 14px 28px;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 700;
+  z-index: 200;
+  animation: toastIn 0.3s ease, toastOut 0.3s ease 2s forwards;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+@keyframes toastOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* RESPONSIVE */
+@media (min-width: 600px) {
+  body {
+    max-width: 500px;
+    margin: 0 auto;
+  }
+}
