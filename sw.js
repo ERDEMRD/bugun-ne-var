@@ -1,5 +1,5 @@
 // Service Worker - Bugün Ne Var?
-const CACHE_NAME = 'bugun-ne-var-v1';
+const CACHE_NAME = 'bugun-ne-var-v2';
 const ASSETS = [
   '/',
   '/index.html',
@@ -26,10 +26,20 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
-// Offline destek
+// Network first, cache fallback (her zaman güncel dosyaları al)
 self.addEventListener('fetch', event => {
   event.respondWith(
-    caches.match(event.request).then(cached => cached || fetch(event.request))
+    fetch(event.request)
+      .then(response => {
+        // Başarılıysa cache'e kaydet
+        const clone = response.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+        return response;
+      })
+      .catch(() => {
+        // Offline ise cache'ten dön
+        return caches.match(event.request);
+      })
   );
 });
 
