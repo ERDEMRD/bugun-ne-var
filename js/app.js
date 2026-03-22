@@ -519,6 +519,47 @@ function updateSyncStatus(text, color) {
   }
 }
 
+// Google Apps Script redirect yapar, bu yüzden fetch yerine
+// script tag (JSONP benzeri) veya redirect-follow kullanıyoruz
+function gasRequest(action, data) {
+  return new Promise((resolve, reject) => {
+    const url = getSheetsUrl();
+    let fullUrl = url + '?action=' + action;
+    if (data) {
+      fullUrl += '&data=' + encodeURIComponent(data);
+    }
+    // Callback adı
+    const cbName = '_gasCallback_' + Date.now();
+    fullUrl += '&callback=' + cbName;
+
+    // Timeout
+    const timer = setTimeout(() => {
+      delete window[cbName];
+      if (script.parentNode) script.parentNode.removeChild(script);
+      reject(new Error('Timeout'));
+    }, 15000);
+
+    // Global callback
+    window[cbName] = function(result) {
+      clearTimeout(timer);
+      delete window[cbName];
+      if (script.parentNode) script.parentNode.removeChild(script);
+      resolve(result);
+    };
+
+    // Script tag ile istek at
+    const script = document.createElement('script');
+    script.src = fullUrl;
+    script.onerror = function() {
+      clearTimeout(timer);
+      delete window[cbName];
+      if (script.parentNode) script.parentNode.removeChild(script);
+      reject(new Error('Network error'));
+    };
+    document.body.appendChild(script);
+  });
+}
+
 async function syncToCloud() {
   const url = getSheetsUrl();
   if (!url) {
@@ -530,8 +571,7 @@ async function syncToCloud() {
   const tasks = getTasks();
 
   try {
-    const response = await fetch(url + '?action=save&data=' + encodeURIComponent(JSON.stringify(tasks)));
-    const result = await response.json();
+    const result = await gasRequest('save', JSON.stringify(tasks));
     if (result.status === 'ok') {
       localStorage.setItem('dayim_last_sync', new Date().toISOString());
       updateSyncStatus('✅ Yedeklendi: ' + new Date().toLocaleTimeString('tr-TR'), '#4ecca3');
@@ -557,8 +597,7 @@ async function syncFromCloud() {
   updateSyncStatus('📥 Geri yükleniyor...', '#f39c12');
 
   try {
-    const response = await fetch(url + '?action=load');
-    const result = await response.json();
+    const result = await gasRequest('load');
     if (result.status === 'ok' && result.data) {
       const tasks = JSON.parse(result.data);
       saveTasks(tasks);

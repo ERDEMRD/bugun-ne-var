@@ -12,37 +12,34 @@
 
 ```javascript
 function doGet(e) {
-  return handleRequest(e);
-}
-
-function doPost(e) {
-  return handleRequest(e);
-}
-
-function handleRequest(e) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Görevler");
   if (!sheet) {
     sheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet("Görevler");
     sheet.getRange("A1").setValue("data");
+    sheet.getRange("B1").setValue("son güncelleme");
   }
 
   var action = e.parameter.action;
+  var callback = e.parameter.callback;
+  var result;
 
   if (action === "save") {
     var data = e.parameter.data;
     sheet.getRange("A2").setValue(data);
     sheet.getRange("B2").setValue(new Date().toISOString());
-    return ContentService.createTextOutput(JSON.stringify({status: "ok"}))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-
-  if (action === "load") {
+    result = {status: "ok"};
+  } else if (action === "load") {
     var data = sheet.getRange("A2").getValue();
-    return ContentService.createTextOutput(JSON.stringify({status: "ok", data: data || "[]"}))
-      .setMimeType(ContentService.MimeType.JSON);
+    result = {status: "ok", data: data || "[]"};
+  } else {
+    result = {status: "error"};
   }
 
-  return ContentService.createTextOutput(JSON.stringify({status: "error"}))
+  if (callback) {
+    return ContentService.createTextOutput(callback + "(" + JSON.stringify(result) + ")")
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+  return ContentService.createTextOutput(JSON.stringify(result))
     .setMimeType(ContentService.MimeType.JSON);
 }
 ```
