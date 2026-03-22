@@ -151,6 +151,45 @@
     <button onclick="sendWhatsAppSummary()">📱 WhatsApp'a Gönder</button>
   </div>
 
+  <!-- Sync Durumu -->
+  <div id="sync-bar">
+    <span id="sync-status">☁️ Yedekleme: Bağlı değil</span>
+    <button onclick="showSettings()">⚙️ Ayarlar</button>
+  </div>
+
+  <!-- AYARLAR FORMU -->
+  <div id="settings-form" class="modal" style="display:none;">
+    <div class="modal-content">
+      <h2>⚙️ Ayarlar</h2>
+
+      <label>Google Sheets URL</label>
+      <input type="text" id="input-sheets-url" placeholder="Apps Script Web App URL'si">
+      <p class="help-text">Kurulum için GOOGLE_SHEETS_KURULUM.md dosyasına bak</p>
+
+      <div class="form-buttons" style="margin-top:16px;">
+        <button class="btn-save" onclick="saveSettings()">💾 Kaydet</button>
+        <button class="btn-cancel" onclick="hideSettings()">İptal</button>
+      </div>
+
+      <hr style="border-color:#333;margin:20px 0;">
+
+      <h3 style="margin-bottom:12px;">Yedekleme İşlemleri</h3>
+      <div class="form-buttons">
+        <button class="btn-save" onclick="syncToCloud()">☁️ Şimdi Yedekle</button>
+        <button class="btn-remind" onclick="syncFromCloud()">📥 Geri Yükle</button>
+      </div>
+
+      <hr style="border-color:#333;margin:20px 0;">
+
+      <h3 style="margin-bottom:12px;">Veri İşlemleri</h3>
+      <div class="form-buttons">
+        <button class="btn-postpone" onclick="exportData()">📤 Dışa Aktar (JSON)</button>
+        <button class="btn-remind" onclick="document.getElementById('import-file').click()">📥 İçe Aktar</button>
+        <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
+      </div>
+    </div>
+  </div>
+
   <script src="js/app.js"></script>
 </body>
 </html>

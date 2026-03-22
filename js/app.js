@@ -9,6 +9,7 @@ function getTasks() {
 
 function saveTasks(tasks) {
   localStorage.setItem('dayim_tasks', JSON.stringify(tasks));
+  autoSync();
 }
 
 function generateId() {
@@ -499,6 +500,158 @@ function showToast(message) {
 }
 
 // ==========================================
+// GOOGLE SHEETS SYNC
+// ==========================================
+
+function getSheetsUrl() {
+  return localStorage.getItem('dayim_sheets_url') || '';
+}
+
+function saveSheetsUrl(url) {
+  localStorage.setItem('dayim_sheets_url', url);
+}
+
+function updateSyncStatus(text, color) {
+  const el = document.getElementById('sync-status');
+  if (el) {
+    el.textContent = text;
+    el.style.color = color || '#888';
+  }
+}
+
+async function syncToCloud() {
+  const url = getSheetsUrl();
+  if (!url) {
+    showToast('⚠️ Önce Google Sheets URL ayarla!');
+    return;
+  }
+
+  updateSyncStatus('☁️ Yedekleniyor...', '#f39c12');
+  const tasks = getTasks();
+
+  try {
+    const response = await fetch(url + '?action=save&data=' + encodeURIComponent(JSON.stringify(tasks)));
+    const result = await response.json();
+    if (result.status === 'ok') {
+      localStorage.setItem('dayim_last_sync', new Date().toISOString());
+      updateSyncStatus('✅ Yedeklendi: ' + new Date().toLocaleTimeString('tr-TR'), '#4ecca3');
+      showToast('☁️ Google Sheets\'e yedeklendi!');
+    } else {
+      throw new Error('Sync failed');
+    }
+  } catch (e) {
+    updateSyncStatus('❌ Yedekleme hatası', '#e74c3c');
+    showToast('❌ Yedekleme başarısız!');
+  }
+}
+
+async function syncFromCloud() {
+  const url = getSheetsUrl();
+  if (!url) {
+    showToast('⚠️ Önce Google Sheets URL ayarla!');
+    return;
+  }
+
+  if (!confirm('Buluttaki veriler telefonun üzerine yazılacak. Emin misin?')) return;
+
+  updateSyncStatus('📥 Geri yükleniyor...', '#f39c12');
+
+  try {
+    const response = await fetch(url + '?action=load');
+    const result = await response.json();
+    if (result.status === 'ok' && result.data) {
+      const tasks = JSON.parse(result.data);
+      saveTasks(tasks);
+      updateSyncStatus('✅ Geri yüklendi: ' + new Date().toLocaleTimeString('tr-TR'), '#4ecca3');
+      showToast('📥 Veriler geri yüklendi!');
+      render();
+    } else {
+      throw new Error('Load failed');
+    }
+  } catch (e) {
+    updateSyncStatus('❌ Geri yükleme hatası', '#e74c3c');
+    showToast('❌ Geri yükleme başarısız!');
+  }
+}
+
+// Her görev değişikliğinde otomatik yedekle
+function autoSync() {
+  const url = getSheetsUrl();
+  if (!url) return;
+
+  // 30 saniye debounce
+  clearTimeout(window._syncTimer);
+  window._syncTimer = setTimeout(() => {
+    syncToCloud();
+  }, 30000);
+}
+
+// Ayarlar
+function showSettings() {
+  document.getElementById('input-sheets-url').value = getSheetsUrl();
+  document.getElementById('settings-form').style.display = 'flex';
+}
+
+function hideSettings() {
+  document.getElementById('settings-form').style.display = 'none';
+}
+
+function saveSettings() {
+  const url = document.getElementById('input-sheets-url').value.trim();
+  saveSheetsUrl(url);
+  hideSettings();
+  if (url) {
+    updateSyncStatus('☁️ Yedekleme: Bağlı', '#4ecca3');
+    showToast('✅ Google Sheets bağlandı!');
+    syncToCloud();
+  } else {
+    updateSyncStatus('☁️ Yedekleme: Bağlı değil', '#888');
+    showToast('Google Sheets bağlantısı kaldırıldı');
+  }
+}
+
+// JSON Dışa/İçe Aktarma
+function exportData() {
+  const tasks = getTasks();
+  const blob = new Blob([JSON.stringify(tasks, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'bugun-ne-var-yedek-' + toDateStr(new Date()) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('📤 Yedek dosyası indirildi!');
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  if (!confirm('Mevcut veriler silinip dosyadaki veriler yüklenecek. Emin misin?')) {
+    event.target.value = '';
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const tasks = JSON.parse(e.target.result);
+      if (Array.isArray(tasks)) {
+        saveTasks(tasks);
+        showToast('📥 Veriler yüklendi!');
+        render();
+      } else {
+        showToast('⚠️ Geçersiz dosya formatı!');
+      }
+    } catch (err) {
+      showToast('⚠️ Dosya okunamadı!');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+// ==========================================
 // SERVICE WORKER
 // ==========================================
 
@@ -514,6 +667,16 @@ document.addEventListener('DOMContentLoaded', () => {
   requestNotificationPermission();
   render();
   scheduleAllNotifications();
+
+  // Sync durumu göster
+  if (getSheetsUrl()) {
+    const lastSync = localStorage.getItem('dayim_last_sync');
+    if (lastSync) {
+      updateSyncStatus('☁️ Son yedek: ' + new Date(lastSync).toLocaleString('tr-TR'), '#4ecca3');
+    } else {
+      updateSyncStatus('☁️ Yedekleme: Bağlı', '#4ecca3');
+    }
+  }
 
   // Her dakika kontrol
   setInterval(() => {
