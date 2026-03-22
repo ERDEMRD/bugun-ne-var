@@ -37,6 +37,15 @@ body {
   color: #e94560;
   margin-top: 6px;
   font-weight: 600;
+  cursor: pointer;
+  padding: 6px 16px;
+  border-radius: 10px;
+  display: inline-block;
+  transition: background 0.2s;
+}
+
+#today-date:active {
+  background: rgba(255,255,255,0.1);
 }
 
 /* ÖZET KARTI */

@@ -47,6 +47,23 @@ function goToday() {
   render();
 }
 
+function openDatePicker() {
+  const picker = document.getElementById('date-picker');
+  picker.value = toDateStr(currentViewDate);
+  picker.style.pointerEvents = 'auto';
+  picker.showPicker ? picker.showPicker() : picker.click();
+  picker.style.pointerEvents = 'none';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('date-picker').addEventListener('change', function() {
+    if (this.value) {
+      currentViewDate = new Date(this.value + 'T00:00:00');
+      render();
+    }
+  });
+});
+
 // ==========================================
 // ANA RENDER
 // ==========================================
@@ -63,13 +80,14 @@ function render() {
 
   // Tarih göster
   const dateEl = document.getElementById('today-date');
+  const dateText = '📅 ' + formatDateTR(currentViewDate) + ' ▼';
   if (dateStr === today) {
-    dateEl.textContent = '📅 ' + formatDateTR(currentViewDate);
+    dateEl.textContent = dateText;
+    dateEl.style.color = '#e94560';
   } else {
-    dateEl.textContent = '📅 ' + formatDateTR(currentViewDate);
+    dateEl.textContent = dateText;
     dateEl.style.color = '#f39c12';
   }
-  if (dateStr === today) dateEl.style.color = '#e94560';
 
   // Bugüne dön butonu
   document.getElementById('date-nav').style.display = dateStr === today ? 'none' : 'block';
